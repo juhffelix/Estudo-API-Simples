@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudo JS</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  form {
+    margin-bottom: 20px;
+  }
+  input[type="text"] {
+    padding: 5px;
+    font-size: 16px;
+    width: 200px;
+  }
+  button {
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 5px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Lista</h1>
+
+<form id="addItemForm">
+  <label for="item">Novo Item:</label>
+  <input type="text" id="item" name="item">
+  <button type="submit">Adicionar Item</button>
+</form>
+
+<ul id="shoppingList"></ul>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('addItemForm');
+  const itemList = document.getElementById('shoppingList');
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const newItem = form.item.value;
+
+    fetch('http://localhost:3001/compras', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ item: newItem })
+    })
+    .then(response => response.json())
+    .then(data => {
+      addItemToList(data);
+      form.reset();
+    })
+    .catch(error => console.error('Erro ao adicionar item:', error));
+  });
+
+  function addItemToList(item) {
+    const li = document.createElement('li');
+    li.textContent = item;
+    itemList.appendChild(li);
+  }
+
+  // Carregar itens da lista 
+  fetch('http://localhost:3001/compras')
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(item => addItemToList(item));
+    })
+    .catch(error => console.error('Erro ao carregar lista de compras:', error));
+});
+</script>
+
+</body>
+</html>
